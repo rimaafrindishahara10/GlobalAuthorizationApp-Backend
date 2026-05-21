@@ -1,0 +1,41 @@
+server:
+  port: 8081
+
+  #database configuration
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/auth_app
+    username: postgres
+    password: root
+#    hikari:
+#      pool-name: HikariCP
+#      maximum-pool-size: 5
+#      connection-timeout: 10000
+#      idle-timeout: 600000
+#      max-lifetime: 1800000
+#      validation-timeout: 1800000
+#      leak-detection-threshold: 0
+#      initialization-fail-timeout: -1
+
+  #Spring JPA configuration
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+logging:
+  level:
+    org.springframework.security: debug
+
+  security:
+    jwt:
+      secret: ${JWT_SECRET:saifolrima10afrin10dishahara10rima10afrin10dishahara10rima10afrin10dishahara10rima10afrin10dishahara10rima10afrin10dishahara10}
+      issuer: ${JWT_ISSUER:api.substring.com}
+      access-ttl-second: ${JWT_ACCESS_TTL_SECONDS:3600}
+      refresh-ttl-second: ${JWT_REFRESH_TTL_SECONDS:86400}
+      refresh-token-cookie-name: ${JWT_REFRESH_TOKEN_COOKIE_NAME:refreshToken}
+      cookie-secure: ${JTW_COOKIE_SECURE:true}
+      cookie-http-only: ${JTW_COOKIE_HTTP_ONLY:true}
+      cookie-same-site: ${JTW_COOKIE_SAME_SITE:lax}
