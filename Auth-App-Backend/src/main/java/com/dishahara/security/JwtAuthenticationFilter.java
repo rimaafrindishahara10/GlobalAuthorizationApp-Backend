@@ -41,11 +41,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         log.info("Authorization header: {}", header);
         if ((header !=null) && header.startsWith("Bearer ")) {
             String token = header.substring(7);
-            if (!jwtService.isAccessToken(token)) {
-                filterChain.doFilter(request, response);
-                return;
-            }
+
             try{
+                if (!jwtService.isAccessToken(token)) {
+                    filterChain.doFilter(request, response);
+                    return;
+                }
                 Jws<Claims> claimsJws = jwtService.parseToken(token);
                 String userId = claimsJws.getPayload().getSubject();
                 UUID uuid = UserHelper.parseUUID(userId);
@@ -67,15 +68,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 
             }catch (ExpiredJwtException e){
-                e.printStackTrace();
-            }
-            catch (MalformedJwtException e){
-                e.printStackTrace();
-            }catch (JwtException e){
-                e.printStackTrace();
+                request.setAttribute("error", "Token is expired");
+               // e.printStackTrace();
             }
             catch (Exception e){
-                e.printStackTrace();
+                request.setAttribute("error", "Token is invalid");
+              //  e.printStackTrace();
             }
 
 
@@ -84,5 +82,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
 
 
+    }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        return request.getRequestURI().startsWith("/api/v1/auth");
     }
 }

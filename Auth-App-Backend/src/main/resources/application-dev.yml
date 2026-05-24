@@ -39,3 +39,4 @@ logging:
       cookie-secure: ${JTW_COOKIE_SECURE:true}
       cookie-http-only: ${JTW_COOKIE_HTTP_ONLY:true}
       cookie-same-site: ${JTW_COOKIE_SAME_SITE:lax}
+      cookie-domain: ${JTW_COOKIE_DOMAIN:localhost}

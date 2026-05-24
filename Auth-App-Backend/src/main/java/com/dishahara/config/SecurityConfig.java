@@ -1,8 +1,10 @@
 package com.dishahara.config;
 
+import com.dishahara.dtos.ApiError;
 import com.dishahara.security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -13,6 +15,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import tools.jackson.databind.ObjectMapper;
 
 import java.util.Map;
+import java.util.Objects;
 
 @Configuration
 @EnableWebSecurity
@@ -32,18 +35,23 @@ public class SecurityConfig {
                         s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth->
                         auth
-                                .requestMatchers("/api/v1/auth/register","/api/v1/auth/login").permitAll()
+                                .requestMatchers("/api/v1/auth/register","/api/v1/auth/login","/api/v1/auth/refreshToken","/api/v1/auth/logout").permitAll()
                                 .anyRequest().authenticated()
                 )
                 .exceptionHandling(e->e.authenticationEntryPoint((request, response, e1)->{
 
-                    e1.printStackTrace();
+                    //e1.printStackTrace();
                     response.setStatus(401);
                     response.setContentType("application/json;charset=utf-8");
                     String message = "Unauthorized Access ! " + e1.getMessage();
-                    Map<String,String> errorMap = Map.of("message",message ,"StatusCode",Integer.toString(401));
+                    String error = request.getAttribute("error").toString();
+                    if (error != null) {
+                        message = error;
+                    }
+                   // Map<String, Object> errorMap = Map.of("message",message ,"StatusCode",401);
+                    ApiError apiError = ApiError.of(HttpStatus.UNAUTHORIZED.value(), "Unauthorized", message, request.getRequestURI());
                     var objectMapper = new ObjectMapper();
-                    response.getWriter().write(objectMapper.writeValueAsString(errorMap));
+                    response.getWriter().write(objectMapper.writeValueAsString(apiError));
                         }))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
